@@ -1,0 +1,13 @@
+interface:
+  display_name: "Deploy App"
+  short_description: "Deploy this service"
+  default_prompt: "Use $deploy-app to deploy this project."
+policy:
+  allow_implicit_invocation: false
+dependencies:
+  tools:
+    - type: "mcp"
+      value: "github"
+      description: "GitHub MCP server"
+      transport: "streamable_http"
+      url: "https://api.githubcopilot.com/mcp/"
