@@ -7,8 +7,16 @@
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "bin": {
-    "skill-port": "./dist/cli.js"
+    "skill-port": "dist/cli.js"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lu-zhengda/skill-port.git"
+  },
+  "bugs": {
+    "url": "https://github.com/lu-zhengda/skill-port/issues"
+  },
+  "homepage": "https://github.com/lu-zhengda/skill-port#readme",
   "files": [
     "dist",
     "README.md",

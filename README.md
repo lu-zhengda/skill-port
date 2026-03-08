@@ -120,6 +120,15 @@ npm run test:e2e:live
 
 `test:e2e:live` is optional and requires network access plus `SKILL_PORT_LIVE_E2E=1`.
 
+## Release
+
+- First publish is done manually with `npm publish --access public`.
+- Ongoing publishes are automated from GitHub Releases via [`.github/workflows/publish.yml`](./.github/workflows/publish.yml).
+- In npm package settings, add a Trusted Publisher for:
+  - provider: GitHub Actions
+  - repository: `lu-zhengda/skill-port`
+  - workflow file: `.github/workflows/publish.yml`
+
 ## Provider Study
 
 See [`docs/provider-study.md`](docs/provider-study.md) for the March 8, 2026 compatibility baseline and field matrix.
