@@ -127,7 +127,8 @@ npm run test:e2e:live
 - In npm package settings, add a Trusted Publisher for:
   - provider: GitHub Actions
   - repository: `lu-zhengda/skill-port`
-  - workflow file: `.github/workflows/publish.yml`
+  - workflow file name: `publish.yml` (filename only, not full path)
+  - environment: `release`
 
 ## Provider Study
 
