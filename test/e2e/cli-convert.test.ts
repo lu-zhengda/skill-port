@@ -175,6 +175,17 @@ describe("cli e2e conversion", () => {
     expect(result.stderr).toContain("SP002");
   });
 
+  it("shows a clear error when auto-detected source equals --to provider", () => {
+    const home = mkdtempSync(path.join(os.tmpdir(), "skill-port-same-provider-home-"));
+    installFixture(home, "claude-code", "rulegen");
+
+    const result = runCli(home, ["convert", "rulegen", "--to", "claude-code"]);
+
+    expect(result.status).toBe(1);
+    expect(result.stderr).toContain("no-op conversion to the same provider");
+    expect(result.stderr).toContain("Choose a different --to provider");
+  });
+
   it("preserves canonical fields across codex -> claude -> codex", () => {
     const home = mkdtempSync(path.join(os.tmpdir(), "skill-port-roundtrip-home-"));
     const skillName = "deploy-app";

@@ -85,7 +85,16 @@ export async function convertSkill(options: ConvertOptions): Promise<ConvertResu
 
   if (!options.dryRun) {
     if (path.resolve(outputDir) === path.resolve(inputDir)) {
-      throw new Error("Output directory cannot be the same as input directory.");
+      if (sourceProvider === targetProvider) {
+        throw new Error(
+          `Detected source provider '${sourceProvider}' and target provider '${targetProvider}' for the same skill path (${outputDir}). ` +
+            "This is a no-op conversion to the same provider. Choose a different --to provider, or set --target-scope/--out to write elsewhere."
+        );
+      }
+
+      throw new Error(
+        `Output directory resolves to the input directory (${outputDir}). Set --out (or --target-scope in scoped mode) to a different path.`
+      );
     }
 
     await ensureOutputDirectory(outputDir, Boolean(options.overwrite));

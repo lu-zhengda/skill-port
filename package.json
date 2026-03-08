@@ -1,6 +1,6 @@
 {
   "name": "skill-port",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "Convert AI coding skills across OpenAI/Codex, Claude Code, and Cursor Skills formats.",
   "license": "MIT",
   "type": "module",
