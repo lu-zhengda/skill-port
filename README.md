@@ -1,5 +1,11 @@
 # skill-port
 
+[![npm version](https://img.shields.io/npm/v/skill-port?logo=npm)](https://www.npmjs.com/package/skill-port)
+[![npm downloads](https://img.shields.io/npm/dm/skill-port)](https://www.npmjs.com/package/skill-port)
+[![CI](https://img.shields.io/github/actions/workflow/status/lu-zhengda/skill-port/ci.yml?branch=main&label=ci)](https://github.com/lu-zhengda/skill-port/actions/workflows/ci.yml)
+[![Publish](https://img.shields.io/github/actions/workflow/status/lu-zhengda/skill-port/publish.yml?label=publish)](https://github.com/lu-zhengda/skill-port/actions/workflows/publish.yml)
+[![License](https://img.shields.io/github/license/lu-zhengda/skill-port)](./LICENSE)
+
 `skill-port` converts AI coding skill packages between:
 
 - `codex`
@@ -13,17 +19,27 @@ The CLI is intentionally simple:
 
 ## Install
 
+From npmjs:
+
 ```bash
-npm install
-npm run build
-npm link
+npx skill-port --help
 ```
 
-Then run:
+Global install:
 
 ```bash
+npm install -g skill-port
 skill-port --help
 ```
+
+Project-local install (if you do not want global install):
+
+```bash
+npm i skill-port
+npx skill-port --help
+```
+
+Note: `npm i skill-port` is a valid local install. To run the CLI from a local install, use `npx skill-port` (or `npm exec skill-port`).
 
 ## Commands
 
