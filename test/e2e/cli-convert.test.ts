@@ -1,4 +1,4 @@
-import { cpSync, existsSync, mkdtempSync, readFileSync } from "node:fs";
+import { cpSync, existsSync, mkdtempSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
@@ -44,6 +44,33 @@ function installFixture(home: string, provider: Provider, skillName: string): st
   const target = path.join(providerRoot(home, provider), skillName);
   cpSync(fixtures[provider], target, { recursive: true });
   return target;
+}
+
+function installPluginFixture(
+  home: string,
+  pluginName: string,
+  skillName: string,
+  skillContent: string
+): string {
+  const installDir = path.join(home, "plugin-cache", pluginName, "1.0.0");
+  const skillDir = path.join(installDir, "skills", skillName);
+  mkdirSync(skillDir, { recursive: true });
+  writeFileSync(path.join(skillDir, "SKILL.md"), skillContent, "utf8");
+
+  const pluginsDir = path.join(home, ".claude", "plugins");
+  mkdirSync(pluginsDir, { recursive: true });
+  writeFileSync(
+    path.join(pluginsDir, "installed_plugins.json"),
+    JSON.stringify({
+      version: 2,
+      plugins: {
+        [`${pluginName}@mp`]: [{ scope: "user", installPath: installDir, version: "1.0.0" }]
+      }
+    }),
+    "utf8"
+  );
+
+  return installDir;
 }
 
 function runCli(home: string, args: string[]) {
@@ -217,5 +244,66 @@ describe("cli e2e conversion", () => {
     };
 
     expect(openaiConfig.policy?.allow_implicit_invocation).toBe(false);
+  });
+
+  it("lists plugin skills with --scope plugin", () => {
+    const home = mkdtempSync(path.join(os.tmpdir(), "skill-port-e2e-plugin-"));
+    installPluginFixture(
+      home,
+      "test-plug",
+      "hello",
+      "---\nname: hello\ndescription: A greeting skill\n---\n\nHello world\n"
+    );
+
+    const result = runCli(home, ["list", "--scope", "plugin", "--format", "json"]);
+    expect(result.status, result.stderr).toBe(0);
+
+    const skills = JSON.parse(result.stdout);
+    expect(skills).toHaveLength(1);
+    expect(skills[0].name).toBe("hello");
+    expect(skills[0].scope).toBe("plugin");
+  });
+
+  it("converts a plugin skill to user scope (dry-run)", () => {
+    const home = mkdtempSync(path.join(os.tmpdir(), "skill-port-e2e-plug-conv-"));
+    installPluginFixture(
+      home,
+      "test-plug",
+      "hello",
+      "---\nname: hello\ndescription: A greeting skill\n---\n\nHello world\n"
+    );
+
+    const result = runCli(home, [
+      "convert", "hello",
+      "--scope", "plugin",
+      "--target-scope", "user",
+      "--to", "codex",
+      "--dry-run",
+      "--format", "json"
+    ]);
+    expect(result.status, result.stderr).toBe(0);
+
+    const report = JSON.parse(result.stdout);
+    expect(report.sourceProvider).toBe("claude-code");
+    expect(report.targetProvider).toBe("codex");
+  });
+
+  it("rejects --target-scope plugin", () => {
+    const home = mkdtempSync(path.join(os.tmpdir(), "skill-port-e2e-plug-block-"));
+    installPluginFixture(
+      home,
+      "test-plug",
+      "hello",
+      "---\nname: hello\ndescription: A greeting skill\n---\n\nHello world\n"
+    );
+
+    const result = runCli(home, [
+      "convert", "hello",
+      "--scope", "plugin",
+      "--target-scope", "plugin",
+      "--to", "codex"
+    ]);
+    expect(result.status).toBe(1);
+    expect(result.stderr).toContain("SP403");
   });
 });
