@@ -7,7 +7,7 @@ import { validateSkillName } from "./core/scopes.js";
 import type { OutputFormat, Provider, Scope, ScopedConvertOptions } from "./types.js";
 
 const PROVIDERS: Provider[] = ["codex", "claude-code", "cursor"];
-const SCOPES: Scope[] = ["user", "project", "local"];
+const SCOPES: Scope[] = ["user", "project", "local", "plugin"];
 
 function printUsage(): void {
   const usage = `skill-port v0.1.0
@@ -20,7 +20,7 @@ Providers:
   codex | claude-code | cursor
 
 Scopes:
-  user | project | local
+  user | project | local | plugin
 
 list options:
   --scope <scope>           Scope to scan (default: user)
@@ -34,7 +34,9 @@ convert options:
   --all                     Convert all skills in scope (cannot be used with <skill-name>)
                            Continues per-skill on errors; exits non-zero if any fail
   --scope <scope>           Source scope (default: user)
+                           Use 'plugin' for skills from installed Claude Code plugins
   --target-scope <scope>    Target scope (default: same as --scope)
+                           Note: 'plugin' is read-only and cannot be used here
   --out <dir>               Explicit output directory (overrides scope path)
   --report <path>           Report output path (default: <out>/skill-port.report.json)
   --strict                  Fail on lossy conversion or conflicts
