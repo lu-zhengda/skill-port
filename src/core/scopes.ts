@@ -48,6 +48,8 @@ export function resolveSkillsRoot(provider: Provider, scope: Scope, cwd = proces
       return path.join(roots.projectRoot, providerSubpath(provider));
     case "local":
       return path.join(roots.localRoot, providerSubpath(provider));
+    case "plugin":
+      throw new Error("Plugin skills are resolved via installed_plugins.json, not a fixed root path.");
     default:
       return assertNever(scope);
   }
