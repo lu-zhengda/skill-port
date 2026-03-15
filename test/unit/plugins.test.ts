@@ -2,6 +2,7 @@ import { mkdtemp, mkdir, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
+import { convertScopedSkill } from "../../src/core/convert.js";
 import { listPluginSkills, readInstalledPlugins } from "../../src/core/plugins.js";
 import { resolveSkillsRoot } from "../../src/core/scopes.js";
 
@@ -169,5 +170,18 @@ describe("listPluginSkills", () => {
     // skills/ dir maps to claude-code by default (no provider marker)
     const cursorOnly = await listPluginSkills("cursor", tmpDir);
     expect(cursorOnly).toHaveLength(0);
+  });
+});
+
+describe("plugin scope write guard", () => {
+  it("rejects plugin as target scope", async () => {
+    await expect(
+      convertScopedSkill({
+        skill: "anything",
+        to: "cursor",
+        scope: "plugin",
+        targetScope: "plugin",
+      })
+    ).rejects.toThrow("SP403");
   });
 });

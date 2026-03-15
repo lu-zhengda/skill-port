@@ -140,6 +140,14 @@ export async function convertScopedSkill(options: ScopedConvertOptions): Promise
   const scope: Scope = options.scope ?? "user";
   const targetScope: Scope = options.targetScope ?? scope;
 
+  if (targetScope === "plugin") {
+    throw new Error(
+      `[${ISSUE_CODES.PLUGIN_WRITE_BLOCKED}] Cannot write to plugin scope. ` +
+        "Plugin skills are managed by the plugin system. " +
+        "Use --target-scope user|project|local instead."
+    );
+  }
+
   const source = await resolveSkillForConvert(options.skill, scope, options.from ?? "auto");
   const output = options.out
     ? path.resolve(options.out)
