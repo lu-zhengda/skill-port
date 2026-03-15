@@ -3,6 +3,7 @@ import { access, readdir } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { ISSUE_CODES } from "../constants.js";
+import { listPluginSkills } from "./plugins.js";
 import type { ListedSkill, Provider, Scope } from "../types.js";
 
 const PROVIDER_ORDER: Provider[] = ["codex", "claude-code", "cursor"];
@@ -79,6 +80,10 @@ export async function listSkills(
   provider: Provider | "all",
   cwd = process.cwd()
 ): Promise<ListedSkill[]> {
+  if (scope === "plugin") {
+    return listPluginSkills(provider);
+  }
+
   const providers = provider === "all" ? PROVIDER_ORDER : [provider];
 
   const output: ListedSkill[] = [];
@@ -121,6 +126,10 @@ export async function resolveSkillForConvert(
   from: Provider | "auto",
   cwd = process.cwd()
 ): Promise<{ provider: Provider; path: string }> {
+  if (scope === "plugin") {
+    return resolvePluginSkill(skillName, from);
+  }
+
   if (from !== "auto") {
     const explicitPath = resolveSkillPath(from, scope, skillName, cwd);
     if (!(await pathExists(path.join(explicitPath, "SKILL.md")))) {
@@ -230,6 +239,34 @@ function findProjectRoot(start: string): string {
 
     current = parent;
   }
+}
+
+async function resolvePluginSkill(
+  skillName: string,
+  from: Provider | "auto"
+): Promise<{ provider: Provider; path: string }> {
+  const normalizedName = validateSkillName(skillName);
+  const provider = from === "auto" ? "all" : from;
+  const skills = await listPluginSkills(provider);
+
+  const matches = skills.filter((s) => s.name === normalizedName);
+
+  if (matches.length === 0) {
+    throw new Error(`Skill '${skillName}' was not found in scope 'plugin'.`);
+  }
+
+  if (from === "auto" && matches.length > 1) {
+    const uniqueProviders = new Set(matches.map((m) => m.provider));
+    if (uniqueProviders.size > 1) {
+      const providers = Array.from(uniqueProviders).join(", ");
+      throw new Error(
+        `Skill '${skillName}' exists for multiple providers in scope 'plugin' (${providers}). Specify --from.`
+      );
+    }
+  }
+
+  const match = matches[0];
+  return { provider: match.provider, path: match.path };
 }
 
 function assertNever(value: never): never {
