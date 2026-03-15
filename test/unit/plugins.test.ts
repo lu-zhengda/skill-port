@@ -3,8 +3,10 @@ import os from "node:os";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
 import { convertScopedSkill } from "../../src/core/convert.js";
+import { formatSkillsText } from "../../src/core/list.js";
 import { listPluginSkills, readInstalledPlugins } from "../../src/core/plugins.js";
 import { resolveSkillsRoot } from "../../src/core/scopes.js";
+import type { ListedSkill } from "../../src/types.js";
 
 describe("plugin scope type", () => {
   it("resolveSkillsRoot handles plugin scope without throwing assertNever", () => {
@@ -170,6 +172,17 @@ describe("listPluginSkills", () => {
     // skills/ dir maps to claude-code by default (no provider marker)
     const cursorOnly = await listPluginSkills("cursor", tmpDir);
     expect(cursorOnly).toHaveLength(0);
+  });
+});
+
+describe("formatSkillsText for plugins", () => {
+  it("formats plugin skills with scope=plugin header", () => {
+    const skills: ListedSkill[] = [
+      { provider: "claude-code", scope: "plugin", name: "macctl", path: "/fake" },
+    ];
+    const output = formatSkillsText(skills, "plugin", "all");
+    expect(output).toContain("scope=plugin");
+    expect(output).toContain("macctl");
   });
 });
 
